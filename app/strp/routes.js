@@ -4,8 +4,6 @@ express = require('express'),
 router = express.Router();
 
 
-router.route('/stripe')
-  .post(ctrl._stripe)
-
+router.route('/stripe').post(ctrl._stripe)
 
 module.exports = router;
