@@ -9,10 +9,9 @@ app.use(express.json());
 
 const _stripe = (req, res) => {
 
-    console.log(req.body);
 
 stripe.charges.create({
-    amount:2,
+    amount:req.body.amount,
     source:req.body.token,
     currency:'usd'
 }).then(function(){
