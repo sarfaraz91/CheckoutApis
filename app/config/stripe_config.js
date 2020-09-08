@@ -1,9 +1,11 @@
 const stripe = {
-    stripe_client_id: 'ca_GuQUXxlYRSqTjci7ZqXFusg7iPU6Ravq',
-    stripe_secret_id: 'sk_test_cif4hMSSUZvCQqmXwk8Aq5Q200GRsd7XVa'
+    stripe_client_id: 'ca_EQLlbyCv6pJWBqS6uYWBpbyfAODjNcjo',
+    stripe_secret_id: 'sk_test_8WONGxWo090F1C4Ggqm8nUn9',
+    stripe_public_id: 'pk_test_mIEBlVIOKBx6lt0FzuyGdFgo'
 }
 
-module.exports = {
+module.
+exports = {
     stripe
 
 

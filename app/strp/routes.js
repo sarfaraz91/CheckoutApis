@@ -5,7 +5,7 @@ router = express.Router();
 
 
 router.route('/stripe')
-  .get(ctrl._stripe)
+  .post(ctrl._stripe)
 
 
 module.exports = router;
