@@ -9,6 +9,8 @@ app.use(express.json());
 
 const _stripe = (req, res) => {
 
+    console.log(req.body);
+
 stripe.charges.create({
     amount:2,
     source:req.body.token,
@@ -20,6 +22,7 @@ stripe.charges.create({
         status:500,
         message:'Payment Failed'})
 })
+
 }
 
 module.exports = {
