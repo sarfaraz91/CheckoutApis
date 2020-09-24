@@ -7,7 +7,7 @@ var urlencodedParser = bodyParser.urlencoded({ extended: false });
 app.use(jsonParser);
 require("./app")(app);
 var db = require("./app/config/db_config");
-var port = process.env.PORT || 3000; // set our port
+var port = process.env.PORT || 4000; // set our port
 var router = express.Router();
 
 mongoose.connect(db.mongodb.dburl);
@@ -28,6 +28,7 @@ mongoose.connection.on('connected',()=>{
 app.use(function onError(err, req, res, next) {
   res.status(500).send({ message: "Interval Server Error" });
 });
+
 
 app.listen(port);
 
