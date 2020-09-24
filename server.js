@@ -1,14 +1,17 @@
 var express = require("express");
 var app = express();
-var bodyParser = require("body-parser");
+bodyParser = require('body-parser');
 var jsonParser = bodyParser.json();
 var mongoose=require('mongoose');
-var urlencodedParser = bodyParser.urlencoded({ extended: false });
 app.use(jsonParser);
 require("./app")(app);
 var db = require("./app/config/db_config");
 var port = process.env.PORT || 3000; // set our port
 var router = express.Router();
+
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 mongoose.connect(db.mongodb.dburl);
 mongoose.connection.on('connected',()=>{
