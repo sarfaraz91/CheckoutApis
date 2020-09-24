@@ -11,7 +11,7 @@ var _user = new Schema({
         lowercase: true
     },
     email: {
-        type: Number,
+        type: String,
         index: true,
         trim: true,
         lowercase: true
