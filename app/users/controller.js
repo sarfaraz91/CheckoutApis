@@ -2,6 +2,7 @@ var express = require("express");
 const { Collection } = require("mongoose");
 var app = express();
 app.use(express.json());
+db=require('mongoose');
 
 var collection_name = "users";
 var COLLECTION = db.model(collection_name);
