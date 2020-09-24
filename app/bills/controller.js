@@ -29,7 +29,7 @@ const _bills=(req,res)=>{
 
 
 const _getBills = (req, res) => {
-  COLLECTION.find()
+  Bills.find()
     .then((users) => res.status(200).send(users))
     .catch((err) => {
       res.status(400).send({
