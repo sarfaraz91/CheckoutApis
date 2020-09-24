@@ -2,12 +2,11 @@ var express = require("express");
 const { Collection } = require("mongoose");
 var app = express();
 app.use(express.json());
-
+db=require('mongoose');
 var collection_name='bills'
 var COLLECTION = db.model(collection_name);
 
 const _bills = (req, res) => {
-
     var items={
         foodItem:req.foodItem,
         amount:req.amount
@@ -24,7 +23,7 @@ const _bills = (req, res) => {
 
 const _getBills = (req, res) => {
 
-   
+res.send('ponka')
 
     COLLECTION.find().then((users) => res.status(200).send(users))
     .catch((err) => {
