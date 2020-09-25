@@ -1,15 +1,15 @@
 
 var mongoose = require('mongoose'),
-Users = mongoose.model('users');
+  Users = mongoose.model('users');
 
-const _users=(req,res)=>{
+const _users = (req, res) => {
   var new_task = new Users(req.body);
 
-  new_task.save(function(err, task) {
-      if (err)
-        res.send(err);
-      res.json(task);
-    });
+  new_task.save(function (err, task) {
+    if (err)
+      res.send(err);
+    res.json(task);
+  });
 
 }
 
@@ -29,10 +29,11 @@ const _notification = (req, res) => {
   var arr = req.body.email;
   var total_amount = req.body.amount;
   var amount_dist = total_amount / (arr.length + 1);
+  console.log(amount_dist);
 
   Users.find({ email: { $in: arr } }).then((usr) => {
-    
-res.json(usr)
+console.log(usr);
+    // res.json(usr)
 
   });
 };
