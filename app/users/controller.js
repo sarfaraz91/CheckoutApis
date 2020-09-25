@@ -2,6 +2,8 @@
 var mongoose = require('mongoose'),
 Users = mongoose.model('users');
 
+
+
 const _users=(req,res)=>{
   var new_task = new Users(req.body);
 
@@ -29,11 +31,11 @@ const _notification = (req, res) => {
   var arr = req.body.email;
   var total_amount = req.body.amount;
   var amount_dist = total_amount / (arr.length + 1);
+  Users.find({ email: { $in: arr } }).then((usr) => {
 
-  COLLECTION.find({ email: { $in: arr } }).then((res) => {
-    
-
-
+    res.status(200).send(usr)
+    // res.send(err);
+    //   res.json(usr);
   });
 };
 
