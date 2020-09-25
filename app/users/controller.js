@@ -30,9 +30,9 @@ const _notification = (req, res) => {
   var total_amount = req.body.amount;
   var amount_dist = total_amount / (arr.length + 1);
 
-  Users.find({ email: { $in: arr } }).then((res) => {
+  Users.find({ email: { $in: arr } }).then((usr) => {
     
-
+res.json(usr)
 
   });
 };
