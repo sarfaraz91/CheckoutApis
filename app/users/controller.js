@@ -2,7 +2,7 @@ var express = require("express");
 const { Collection } = require("mongoose");
 var app = express();
 app.use(express.json());
-db=require('mongoose');
+db = require("mongoose");
 
 var collection_name = "users";
 var COLLECTION = db.model(collection_name);
@@ -35,7 +35,20 @@ const _getUsers = (req, res) => {
     });
 };
 
+const _notification = (req, res) => {
+  var arr = req.body.email;
+  var total_amount = req.body.amount;
+  var amount_dist = total_amount / (arr.length + 1);
+
+  COLLECTION.find({ email: { $in: arr } }).then((res) => {
+    
+
+
+  });
+};
+
 module.exports = {
   _users,
   _getUsers,
+  _notification,
 };
