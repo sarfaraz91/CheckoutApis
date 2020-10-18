@@ -2,7 +2,9 @@
 var mongoose = require('mongoose'),
   Users = mongoose.model('users');
 
-const _users = (req, res) => {
+
+
+const _users=(req,res)=>{
   var new_task = new Users(req.body);
 
   new_task.save(function (err, task) {
@@ -29,12 +31,19 @@ const _notification = (req, res) => {
   var arr = req.body.email;
   var total_amount = req.body.amount;
   var amount_dist = total_amount / (arr.length + 1);
-  console.log(amount_dist);
-
   Users.find({ email: { $in: arr } }).then((usr) => {
-console.log(usr);
-    // res.json(usr)
 
+    // var fcmConstants = {
+    //   fcmToken: "AAAAp6MxBuw:APA91bGPN7tawXBVuSLR3dBeC0zaQqgrGVmM4lLXO67afe5M_WhGfQI7WwSMmQYDZcaJNHpP1ZZQA3WLBZ9P7K",
+    //   senderId: "103953800507",
+    //   url: "https://fcm.googleapis.com/fcm/send"
+    // };
+     usr.forEach(element => { 
+     element.fcmToken
+        });
+
+//     res.status(200).send(usr)
+//  =
   });
 };
 
