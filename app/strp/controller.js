@@ -9,7 +9,7 @@ const stripe=require('stripe')(stripe_config.stripe.stripe_secret_id);
 app.use(express.json());
 
 var fcmConstants = {
-    fcmToken: "AAAAp6MxBuw:APA91bGPN7tawXBVuSLR3dBeC0zaQqgrGVmM4lLXO67afe5M_WhGfQI7WwSMmQYDZcaJNHpP1ZZQA3WLBZ9P7K",
+    fcmToken: "cbjs9wMfQw6pWLxulH1uPa:APA91bH3p7bPpQwPJta_95j_EcxXrBf7mcJqOYlY9qHxXXWnZ_4-QQsv4go-BiUPyGpO85Uf2moh2ZqwnNjUesSZuh08ASwtY1kmC-gGrRUCJA5qXZbDf-G6kAMwWk5I30YTcuC1I2Og",
     senderId: "103953800507",
     url: "https://fcm.googleapis.com/fcm/send"
   };
