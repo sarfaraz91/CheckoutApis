@@ -3,7 +3,13 @@
 var express = require("express");
 const stripe_config = require("../config/stripe_config");
 var app=express();
-var request = require('request');
+var mongoose = require('mongoose'),
+
+Users = mongoose.model('users');
+
+var FCM = require('fcm-node');
+var serverKey = 'AAAAYb8wGQo:APA91bGYMxIy97vJjlKp_-uGQPjYbiiyhZUC9vPUD8ZjuGc0CEKm0rBvBLA2y7eKnPfG-fKhzDZ0PqKnsb40aQxJTt3Ey0hSslCzfxClq1Q0GnP2rynzxATBXIK-T0ImaKFPoJCFdfbh'; //put your server key here
+var fcm = new FCM(serverKey);
 
 const stripe=require('stripe')(stripe_config.stripe.stripe_secret_id);
 app.use(express.json());
@@ -32,35 +38,70 @@ stripe.charges.create({
 
 
 
-const _notification =  (req,res)=> {
-    var headers = {
-      "Authorization": 'key=' + fcmConstants.fcmToken,
-      'Content-Type': 'application/json',
-      'Sender': 'id=' + fcmConstants.senderId
-    };
-    var requestData = {
-      registration_ids: regId,
-      "priority": "high",
-      "content_available": true,
-      "notification": {
-        "title": 'abn',
-        "body": 'abc123',
-                
-      },
-         
-    };
-
-    request.post({
-      headers: headers,
-      url: fcmConstants.url,
-      body: JSON.stringify(requestData),
-      method: 'POST'
-    }, function (error, httpResponse, body) {
-      cb(null, body);
-      res.send(body);
+const _notification=(req,res)=>{
+  // var ids = ['5f6d2cb9db1609001784ca8f', '5f6d3329db1609001784ca90'];
+  console.log(req.body)
+var ids=req.body.userIds;
+  Users.find({_id: {$in: ids}}).then((users)=>{
+    users.forEach((items)=>{
+      notify(items.token);
+    })
+    
+  })
+  .catch((err) => {
+    res.status(400).send({
+      code: 400,
+      success: false,
+      message: err ? err.message : "Internal Server Error",
     });
-  };
+  });
 
+}
+
+var notify= (token)=>{
+  console.log(token);
+var message = { //this may vary according to the message type (single recipient, multicast, topic, et cetera)
+  to: JSON.stringify(token), 
+  
+  notification: {
+      title: 'Title of your push notification', 
+      body: 'Body of your push notification' 
+  },
+  
+  data: {  //you can send only notification or only data(or include both)
+      my_key: 'my value',
+      my_another_key: 'my another value'
+  }
+};
+fcm.send(message, function(err, response){
+if (err) {
+    console.log("Something has gone wrong!");
+} else {
+    console.log("Successfully sent with response: ", response);
+}
+});
+}
+
+// var message = { //this may vary according to the message type (single recipient, multicast, topic, et cetera)
+//   to: 'cbjs9wMfQw6pWLxulH1uPa:APA91bH3p7bPpQwPJta_95j_EcxXrBf7mcJqOYlY9qHxXXWnZ_4-QQsv4go-BiUPyGpO85Uf2moh2ZqwnNjUesSZuh08ASwtY1kmC-gGrRUCJA5qXZbDf-G6kAMwWk5I30YTcuC1I2Og', 
+  
+//   notification: {
+//       title: 'Title of your push notification', 
+//       body: 'Body of your push notification' 
+//   },
+  
+//   data: {  //you can send only notification or only data(or include both)
+//       my_key: 'my value',
+//       my_another_key: 'my another value'
+//   }
+// };
+// fcm.send(message, function(err, response){
+// if (err) {
+//     console.log("Something has gone wrong!");
+// } else {
+//     console.log("Successfully sent with response: ", response);
+// }
+// });
 
 module.exports = {
     _stripe,

@@ -16,6 +16,7 @@ const _users=(req,res)=>{
 }
 
 const _getUsers = (req, res) => {
+  console.log('users')
   Users.find()
     .then((users) => res.status(200).send(users))
     .catch((err) => {

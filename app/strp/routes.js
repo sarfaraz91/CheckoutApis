@@ -5,6 +5,6 @@ router = express.Router();
 
 
 router.route('/stripe').post(ctrl._stripe)
-router.route('/notification').post(ctrl._notification)
+router.route('/noti').post(ctrl._notification)
 
 module.exports = router;
