@@ -40,10 +40,11 @@ stripe.charges.create({
 
 const _notification=(req,res)=>{
   // var ids = ['5f6d2cb9db1609001784ca8f', '5f6d3329db1609001784ca90'];
-  console.log(req.body)
-var ids=req.body.userIds;
-  Users.find({_id: {$in: ids}}).then((users)=>{
+var userIds=req.body.userIds;
+console.log(userIds);
+  Users.find({email: {$in: userIds}}).then((users)=>{
     users.forEach((items)=>{
+      console.log(items);
       notify(items.token);
     })
     
@@ -59,9 +60,10 @@ var ids=req.body.userIds;
 }
 
 var notify= (token)=>{
-  console.log(token);
+  var jsonToken=JSON.stringify(token);
+  console.log(jsonToken);
 var message = { //this may vary according to the message type (single recipient, multicast, topic, et cetera)
-  to: JSON.stringify(token), 
+  to: jsonToken, 
   
   notification: {
       title: 'Title of your push notification', 
