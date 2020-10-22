@@ -27,6 +27,28 @@ const _getUsers = (req, res) => {
       });
     });
 };
+const _updateFCM = (req, res) => {
+
+  var userIds=req.body.userIds;
+  var update = {
+    token : req.body.token
+     }
+  var conditions = {
+    email : userIds 
+   }
+  Users.findOneAndUpdate(conditions,update).then((updatedUser)=>{
+        res.status(200).send(updatedUser)
+    })
+    .catch((err) => {
+      res.status(400).send({
+        code: 400,
+        success: false,
+        message: err ? err.message : "Internal Server Error",
+      });
+    });
+  
+};
+
 
 const _notification = (req, res) => {
   var arr = req.body.email;
@@ -52,4 +74,5 @@ module.exports = {
   _users,
   _getUsers,
   _notification,
+  _updateFCM
 };

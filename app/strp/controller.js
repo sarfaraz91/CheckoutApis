@@ -63,7 +63,7 @@ var notify= (token)=>{
   var jsonToken=JSON.stringify(token);
   console.log(jsonToken);
 var message = { //this may vary according to the message type (single recipient, multicast, topic, et cetera)
-  to: jsonToken, 
+  to: "cbjs9wMfQw6pWLxulH1uPa:APA91bH3p7bPpQwPJta_95j_EcxXrBf7mcJqOYlY9qHxXXWnZ_4-QQsv4go-BiUPyGpO85Uf2moh2ZqwnNjUesSZuh08ASwtY1kmC-gGrRUCJA5qXZbDf-G6kAMwWk5I30YTcuC1I2Og", 
   
   notification: {
       title: 'Title of your push notification', 
