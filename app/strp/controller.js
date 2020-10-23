@@ -4,8 +4,8 @@ var express = require("express");
 const stripe_config = require("../config/stripe_config");
 var app = express();
 var mongoose = require("mongoose"),
-     Users = mongoose.model("users"),
-     Bills = mongoose.model("bills");
+  Users = mongoose.model("users"),
+  Bills = mongoose.model("bills");
 
 var FCM = require("fcm-node");
 var serverKey =
@@ -23,7 +23,6 @@ var fcmConstants = {
 };
 
 const _stripe = (req, res) => {
-
   stripe.charges
     .create({
       amount: req.body.amount,
@@ -51,14 +50,13 @@ const _notification = (req, res) => {
   Bills.find({ _id: billId }).then((billData) => {
     if (billData[0].amount == 0) return;
     if (isDivide) {
-      
       billDivided = billData[0].amount / userIds.length;
       Users.find({ email: { $in: userIds } })
         .then((users) => {
           users.forEach((items) => {
             notify(items.token, billDivided);
           });
-          res.status(200).send()
+          res.status(200).send();
         })
         .catch((err) => {
           res.status(400).send({
@@ -73,8 +71,7 @@ const _notification = (req, res) => {
           users.forEach((items) => {
             notify(items.token, billData[0].amount);
           });
-          res.status(200).send()
-
+          res.status(200).send();
         })
         .catch((err) => {
           res.status(400).send({
@@ -92,9 +89,7 @@ var notify = (token, bill) => {
   console.log(jsonToken);
   var message = {
     //this may vary according to the message type (single recipient, multicast, topic, et cetera)
-    to:
-      "cbjs9wMfQw6pWLxulH1uPa:APA91bH3p7bPpQwPJta_95j_EcxXrBf7mcJqOYlY9qHxXXWnZ_4-QQsv4go-BiUPyGpO85Uf2moh2ZqwnNjUesSZuh08ASwtY1kmC-gGrRUCJA5qXZbDf-G6kAMwWk5I30YTcuC1I2Og",
-
+    to: jsonToken,
     notification: {
       title: "Bills Payable ! ",
       body: `You are requested to pay amount ${bill}`,
@@ -112,8 +107,8 @@ var notify = (token, bill) => {
       console.log("Something has gone wrong!");
     } else {
       console.log("Successfully sent with response: ", response);
-return response   
- }
+      return response;
+    }
   });
 };
 
