@@ -1,10 +1,9 @@
-'use strict';
+"use strict";
 
-var mongoose = require('mongoose'),
- Bills = mongoose.model('bills');
+var mongoose = require("mongoose"),
+  Bills = mongoose.model("bills");
 
- bodyParser = require('body-parser');
-
+bodyParser = require("body-parser");
 
 // var express = require("express");
 // var app = express();
@@ -16,18 +15,14 @@ var mongoose = require('mongoose'),
 // app.use(bodyParser.urlencoded({ extended: false }));
 // app.use(bodyParser.json());
 
+const _bills = (req, res) => {
+  var new_task = new Bills(req.body);
 
-const _bills=(req,res)=>{
-    var new_task = new Bills(req.body);
-
-    new_task.save(function(err, task) {
-        if (err)
-          res.send(err);
-        res.json(task);
-      });
-
-}
-
+  new_task.save(function (err, task) {
+    if (err) res.send(err);
+    res.json(task);
+  });
+};
 
 const _getBills = (req, res) => {
   Bills.find()

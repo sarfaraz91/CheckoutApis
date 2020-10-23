@@ -4,12 +4,12 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var _bills = new Schema({
-    foodItem: {
-        type: String,
-        index: true,
-        trim: true,
-        lowercase: true
-    },
+
+    // foodItem : { type : Array ,lowercase: true, "default" : [] },
+    foodItem : [{
+        item : String,
+        price : Number
+         }],
     amount: {
         type: Number,
         index: true,
