@@ -8,6 +8,7 @@ var mongoose = require("mongoose"),
   Bills = mongoose.model("bills");
 
 var FCM = require("fcm-node");
+const { ObjectId } = require("mongodb");
 var serverKey =
   "AAAAYb8wGQo:APA91bGYMxIy97vJjlKp_-uGQPjYbiiyhZUC9vPUD8ZjuGc0CEKm0rBvBLA2y7eKnPfG-fKhzDZ0PqKnsb40aQxJTt3Ey0hSslCzfxClq1Q0GnP2rynzxATBXIK-T0ImaKFPoJCFdfbh"; //put your server key here
 var fcm = new FCM(serverKey);
@@ -23,6 +24,11 @@ var fcmConstants = {
 };
 
 const _stripe = (req, res) => {
+  const billId=ObjectId(req.body.billId);
+  const amountPaid=req.body.amountPaid;
+ const fcmToken=req.body.fcmToken;
+
+
   stripe.charges
     .create({
       amount: req.body.amount,
@@ -31,6 +37,14 @@ const _stripe = (req, res) => {
     })
     .then(function () {
       res.json({ message: "Payment Succeded" });
+      Bills.aggregate([{$match:{_id:billId}},{$project:{result:{$subtract:["$amount", amountPaid]}}}]).then((data)=>{
+        if(data[0].result<=0){
+          notifyUpdate(fcmToken);
+        }
+        Bills.update( { _id: billId }, [ { $set: { amount: data[0].result} } ] ).then(rest=>{res.status(200).send(rest)})
+        
+      })
+
     })
     .catch(function () {
       res.json({
@@ -54,7 +68,7 @@ const _notification = (req, res) => {
       Users.find({ email: { $in: userIds } })
         .then((users) => {
           users.forEach((items) => {
-            notify(items.token, billDivided);
+            notify(items.token, billDivided,billData[0].amount);
           });
           res.status(200).send();
         })
@@ -69,7 +83,7 @@ const _notification = (req, res) => {
       Users.find({ email: { $in: userIds } })
         .then((users) => {
           users.forEach((items) => {
-            notify(items.token, billData[0].amount);
+            notify(items.token, billData[0].amount,null);
           });
           res.status(200).send();
         })
@@ -84,20 +98,49 @@ const _notification = (req, res) => {
   });
 };
 
-var notify = (token, bill) => {
+var notifyUpdate=(token)=>{
+  var jsonToken = JSON.stringify(token);
+  var message = {
+    //this may vary according to the message type (single recipient, multicast, topic, et cetera)
+    to: jsonToken,
+    notification: {
+      title: "Bills Payable !",
+      body: `The amount is paid already!`,
+      
+    },
+    data: {
+      //you can send only notification or only data(or include both)
+      my_key: "my value",
+      my_another_key: "my another value",
+    },
+  };
+  console.log(message);
+
+  fcm.send(message, function (err, response) {
+    if (err) {
+      console.log("Something has gone wrong!");
+    } else {
+      console.log("Successfully sent with response: ", response);
+      return response;
+    }
+  });
+
+}
+
+var notify = (token, bill,totalbill) => {
   var jsonToken = JSON.stringify(token);
   console.log(jsonToken);
   var message = {
     //this may vary according to the message type (single recipient, multicast, topic, et cetera)
     to: jsonToken,
     notification: {
-      title: "Bills Payable ! ",
+      title: "Bills Payable !",
       body: `You are requested to pay amount ${bill}`,
+    
     },
     data: {
-      //you can send only notification or only data(or include both)
-      my_key: "my value",
-      my_another_key: "my another value",
+      bill:bill,
+      totalBill:totalbill
     },
   };
   console.log(message);
