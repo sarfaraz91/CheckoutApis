@@ -8,21 +8,25 @@ var mongoose = require("mongoose"),
   Bills = mongoose.model("bills");
 
 var FCM = require("fcm-node");
-var serverKey =
-  "AAAAYb8wGQo:APA91bGYMxIy97vJjlKp_-uGQPjYbiiyhZUC9vPUD8ZjuGc0CEKm0rBvBLA2y7eKnPfG-fKhzDZ0PqKnsb40aQxJTt3Ey0hSslCzfxClq1Q0GnP2rynzxATBXIK-T0ImaKFPoJCFdfbh"; //put your server key here
+const { ObjectId } = require("mongodb");
+var serverKey ="AAAAYb8wGQo:APA91bGYMxIy97vJjlKp_-uGQPjYbiiyhZUC9vPUD8ZjuGc0CEKm0rBvBLA2y7eKnPfG-fKhzDZ0PqKnsb40aQxJTt3Ey0hSslCzfxClq1Q0GnP2rynzxATBXIK-T0ImaKFPoJCFdfbh";
 var fcm = new FCM(serverKey);
 
 const stripe = require("stripe")(stripe_config.stripe.stripe_secret_id);
 app.use(express.json());
 
 var fcmConstants = {
-  fcmToken:
-    "cbjs9wMfQw6pWLxulH1uPa:APA91bH3p7bPpQwPJta_95j_EcxXrBf7mcJqOYlY9qHxXXWnZ_4-QQsv4go-BiUPyGpO85Uf2moh2ZqwnNjUesSZuh08ASwtY1kmC-gGrRUCJA5qXZbDf-G6kAMwWk5I30YTcuC1I2Og",
-  senderId: "103953800507",
+  fcmToken:"cbjs9wMfQw6pWLxulH1uPa:APA91bH3p7bPpQwPJta_95j_EcxXrBf7mcJqOYlY9qHxXXWnZ_4-QQsv4go-BiUPyGpO85Uf2moh2ZqwnNjUesSZuh08ASwtY1kmC-gGrRUCJA5qXZbDf-G6kAMwWk5I30YTcuC1I2Og",
+  senderId: "419819428106",
   url: "https://fcm.googleapis.com/fcm/send",
 };
 
 const _stripe = (req, res) => {
+  const billId=ObjectId(req.body.billId);
+  const amountPaid=req.body.amountPaid;
+ const fcmToken=req.body.fcmToken;
+
+
   stripe.charges
     .create({
       amount: req.body.amount,
@@ -31,6 +35,14 @@ const _stripe = (req, res) => {
     })
     .then(function () {
       res.json({ message: "Payment Succeded" });
+      Bills.aggregate([{$match:{_id:billId}},{$project:{result:{$subtract:["$amount", amountPaid]}}}]).then((data)=>{
+        if(data[0].result<=0){
+          notifyUpdate(fcmToken);
+        }
+        Bills.update( { _id: billId }, [ { $set: { amount: data[0].result} } ] ).then(rest=>{res.status(200).send(rest)})
+
+      })
+
     })
     .catch(function () {
       res.json({
@@ -54,7 +66,7 @@ const _notification = (req, res) => {
       Users.find({ email: { $in: userIds } })
         .then((users) => {
           users.forEach((items) => {
-            notify(items.token, billDivided);
+            notify(items.token, billDivided,billData[0].amount);
           });
           res.status(200).send();
         })
@@ -69,7 +81,7 @@ const _notification = (req, res) => {
       Users.find({ email: { $in: userIds } })
         .then((users) => {
           users.forEach((items) => {
-            notify(items.token, billData[0].amount);
+            notify(items.token, billData[0].amount,null);
           });
           res.status(200).send();
         })
@@ -84,15 +96,17 @@ const _notification = (req, res) => {
   });
 };
 
+
 var notify = (token, bill) => {
   var jsonToken = token;
   console.log(jsonToken);
   var message = {
     //this may vary according to the message type (single recipient, multicast, topic, et cetera)
-    to: "cbjs9wmfqw6pwlxulh1upa:apa91bh3p7bppqwpjta_95j_ecxxrbf7mcjqoyly9qhxxxwnz_4-qqsv4go-biupygpo85uf2moh2zqwnnjuesszuh08aswty1kmc-ggrrucja5qxzbdf-g6kamwwk5i30ytcuc1i2og",
+    to: jsonToken,
     notification: {
-      title: "Bills Payable ! ",
-      body: `You are requested to pay amount ${bill}`,
+      title: "Bills Payable !",
+      body: `The amount is paid already!`,
+
     },
     data: {
       //you can send only notification or only data(or include both)
@@ -105,6 +119,35 @@ var notify = (token, bill) => {
   fcm.send(message, function (err, response) {
     if (err) {
       console.log("Something has gone wrong!");
+    } else {
+      console.log("Successfully sent with response: ", response);
+      return response;
+    }
+  });
+
+}
+
+var notify = (token, bill,totalbill) => {
+  var jsonToken = JSON.stringify(token);
+  console.log(jsonToken);
+  var message = {
+    //this may vary according to the message type (single recipient, multicast, topic, et cetera)
+    to: jsonToken,
+    notification: {
+      title: "Bills Payable !",
+      body: `You are requested to pay amount ${bill}`,
+
+    },
+    data: {
+      bill:bill,
+      totalBill:totalbill
+    },
+  };
+  console.log(message);
+
+  fcm.send(message, function (err, response) {
+    if (err) {
+      console.log("Something has gone wrong!",err);
     } else {
       console.log("Successfully sent with response: ", response);
       return response;
