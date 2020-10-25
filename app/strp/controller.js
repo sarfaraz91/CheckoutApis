@@ -85,11 +85,11 @@ const _notification = (req, res) => {
 };
 
 var notify = (token, bill) => {
-  var jsonToken = JSON.stringify(token);
+  var jsonToken = token;
   console.log(jsonToken);
   var message = {
     //this may vary according to the message type (single recipient, multicast, topic, et cetera)
-    to: jsonToken,
+    to: "cbjs9wmfqw6pwlxulh1upa:apa91bh3p7bppqwpjta_95j_ecxxrbf7mcjqoyly9qhxxxwnz_4-qqsv4go-biupygpo85uf2moh2zqwnnjuesszuh08aswty1kmc-ggrrucja5qxzbdf-g6kamwwk5i30ytcuc1i2og",
     notification: {
       title: "Bills Payable ! ",
       body: `You are requested to pay amount ${bill}`,
