@@ -110,7 +110,9 @@ var notify=(notificationUsers,dividedBill,totalBill)=>{
     'Sender': 'id=' + fcmConstants.senderId
   };
   var requestData = {
-    registration_ids:notificationUsers,
+    registration_ids:[
+      'daqqpouctt6zxgz5a4rigt:apa91bh2v8hxgumwi1jatsfot-pae3pz5chegpx6_nxzqzjlurtge-m9czyayufs_yjhvrpkuzphl7oclfeubuiwegflmbfbxnnxjngjd7uikgjscsblvz0-nlpdrz9ls2xwz2vgm5fn'
+    ],
     "priority": "high",
     "content_available": true,
     "notification": {
