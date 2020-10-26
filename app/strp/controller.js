@@ -13,8 +13,8 @@ const stripe = require("stripe")(stripe_config.stripe.stripe_secret_id);
 app.use(express.json());
 
 var fcmConstants = {
-  fcmToken:"AAAAYb8wGQo:APA91bGYMxIy97vJjlKp_-uGQPjYbiiyhZUC9vPUD8ZjuGc0CEKm0rBvBLA2y7eKnPfG-fKhzDZ0PqKnsb40aQxJTt3Ey0hSslCzfxClq1Q0GnP2rynzxATBXIK-T0ImaKFPoJCFdfbh",
-  senderId: "419819428106",
+  fcmToken:"AAAAm1Q6cHk:APA91bGZ8Q8cYxGZdBUqweKzT-g-x-4ST4y43GQqacnRrJ4VuzQfBd-5j6up2ZbYIfyk3HAZVX1j6c4x-Usv3tndVUBIQsXZTBQZs8KZ93PgTRKfb8ceuzd4lE3t_UUFBup41_qVPFtg",
+  senderId: "667133046905",
   url: "https://fcm.googleapis.com/fcm/send",
 };
 
