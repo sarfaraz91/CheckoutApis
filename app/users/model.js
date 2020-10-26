@@ -20,7 +20,7 @@ var _user = new Schema({
         type: String,
         index: true,
         trim: true,
-        lowercase: true
+        lowercase: false
     }
 }, { timestamps: true });
 
