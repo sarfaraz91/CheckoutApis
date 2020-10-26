@@ -13,8 +13,8 @@ const stripe = require("stripe")(stripe_config.stripe.stripe_secret_id);
 app.use(express.json());
 
 var fcmConstants = {
-  fcmToken:"AAAAm1Q6cHk:APA91bGZ8Q8cYxGZdBUqweKzT-g-x-4ST4y43GQqacnRrJ4VuzQfBd-5j6up2ZbYIfyk3HAZVX1j6c4x-Usv3tndVUBIQsXZTBQZs8KZ93PgTRKfb8ceuzd4lE3t_UUFBup41_qVPFtg",
-  senderId: "667133046905",
+  fcmToken:"AAAAYb8wGQo:APA91bGYMxIy97vJjlKp_-uGQPjYbiiyhZUC9vPUD8ZjuGc0CEKm0rBvBLA2y7eKnPfG-fKhzDZ0PqKnsb40aQxJTt3Ey0hSslCzfxClq1Q0GnP2rynzxATBXIK-T0ImaKFPoJCFdfbh",
+  senderId: "419819428106",
   url: "https://fcm.googleapis.com/fcm/send",
 };
 
@@ -110,9 +110,7 @@ var notify=(notificationUsers,dividedBill,totalBill)=>{
     'Sender': 'id=' + fcmConstants.senderId
   };
   var requestData = {
-    registration_ids:[
-      'daqqpouctt6zxgz5a4rigt:apa91bh2v8hxgumwi1jatsfot-pae3pz5chegpx6_nxzqzjlurtge-m9czyayufs_yjhvrpkuzphl7oclfeubuiwegflmbfbxnnxjngjd7uikgjscsblvz0-nlpdrz9ls2xwz2vgm5fn'
-    ],
+    registration_ids:notificationUsers,
     "priority": "high",
     "content_available": true,
     "notification": {
