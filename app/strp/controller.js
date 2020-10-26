@@ -7,22 +7,22 @@ var mongoose = require("mongoose"),
   Users = mongoose.model("users"),
   Bills = mongoose.model("bills");
 const { ObjectId } = require("mongodb");
-var request = require('request');
+var request = require("request");
 
 const stripe = require("stripe")(stripe_config.stripe.stripe_secret_id);
 app.use(express.json());
 
 var fcmConstants = {
-  fcmToken:"AAAAm1Q6cHk:APA91bGZ8Q8cYxGZdBUqweKzT-g-x-4ST4y43GQqacnRrJ4VuzQfBd-5j6up2ZbYIfyk3HAZVX1j6c4x-Usv3tndVUBIQsXZTBQZs8KZ93PgTRKfb8ceuzd4lE3t_UUFBup41_qVPFtg",
+  fcmToken:
+    "AAAAm1Q6cHk:APA91bGZ8Q8cYxGZdBUqweKzT-g-x-4ST4y43GQqacnRrJ4VuzQfBd-5j6up2ZbYIfyk3HAZVX1j6c4x-Usv3tndVUBIQsXZTBQZs8KZ93PgTRKfb8ceuzd4lE3t_UUFBup41_qVPFtg",
   senderId: "667133046905",
   url: "https://fcm.googleapis.com/fcm/send",
 };
 
 const _stripe = (req, res) => {
-  const billId=ObjectId(req.body.billId);
-  const amountPaid=req.body.amountPaid;
- // const fcmToken=req.body.fcmToken;
-
+  const billId = ObjectId(req.body.billId);
+  const amountPaid = req.body.amountPaid;
+  // const fcmToken=req.body.fcmToken;
 
   stripe.charges
     .create({
@@ -32,18 +32,26 @@ const _stripe = (req, res) => {
     })
     .then(function () {
       res.json({ message: "Payment Succeded" });
-      Bills.aggregate([{$match:{_id:billId}},{$project:{result:{$subtract:["$amount", amountPaid]}}}]).then((data)=>{
-        if(data[0].result<=0){
-res.status(200).send({amountRemaining:data[0].result,status:'paid'})
+      Bills.aggregate([
+        { $match: { _id: billId } },
+        { $project: { result: { $subtract: ["$amount", amountPaid] } } },
+      ]).then((data) => {
+        if (data[0].result <= 0) {
+          res
+            .status(200)
+            .send({ amountRemaining: data[0].result, status: "paid" });
           // notifyUpdate(fcmToken);
-        }else{
-            res.status(200).send({amountRemaining:data[0].result,status:'unpaid'})
-
+        } else {
+          res
+            .status(200)
+            .send({ amountRemaining: data[0].result, status: "unpaid" });
         }
-        Bills.update( { _id: billId }, [ { $set: { amount: data[0].result} } ] ).then(rest=>{res.status(200).send(rest)})
-
-      })
-
+        Bills.update({ _id: billId }, [
+          { $set: { amount: data[0].result } },
+        ]).then((rest) => {
+          res.status(200).send(rest);
+        });
+      });
     })
     .catch(function () {
       res.json({
@@ -54,7 +62,7 @@ res.status(200).send({amountRemaining:data[0].result,status:'paid'})
 };
 
 const _notification = (req, res) => {
-  var notifyIds=[];
+  var notifyIds = [];
   // var ids = ['5f6d2cb9db1609001784ca8f', '5f6d3329db1609001784ca90'];
   var userIds = req.body.userIds;
   var billId = req.body.billId;
@@ -68,10 +76,10 @@ const _notification = (req, res) => {
       Users.find({ email: { $in: userIds } })
         .then((users) => {
           users.forEach((items) => {
-        notifyIds.push(items.token);
+            notifyIds.push(items.token);
             // notify(items.token, billDivided,billData[0].amount);
           });
-          notify(notifyIds,billDivided,billData[0].amount);
+          notify(notifyIds, billDivided, billData[0].amount);
           res.status(200).send();
         })
         .catch((err) => {
@@ -102,41 +110,37 @@ const _notification = (req, res) => {
   });
 };
 
-
-var notify=(notificationUsers,dividedBill,totalBill)=>{
+var notify = (notificationUsers, dividedBill, totalBill) => {
   var headers = {
-    "Authorization": 'key=' + fcmConstants.fcmToken,
-    'Content-Type': 'application/json',
-    'Sender': 'id=' + fcmConstants.senderId
+    Authorization: "key=" + fcmConstants.fcmToken,
+    "Content-Type": "application/json",
+    Sender: "id=" + fcmConstants.senderId,
   };
   var requestData = {
-    registration_ids:notificationUsers,
-    "priority": "high",
-    "content_available": true,
-    "notification": {
-      "title": 'Bill Payment',
-      "body": `You are requested to pay ${dividedBill}`,
+    registration_ids: notificationUsers,
+    priority: "high",
+    content_available: true,
+    notification: {
+      title: "Bill Payment",
+      body: `You are requested to pay ${dividedBill}`,
     },
-      "data": {
-          "dividedBill":dividedBill,
-          "totalBill":totalBill
-
-      },
+    data: {
+      dividedBill: dividedBill,
+      totalBill: totalBill,
+    },
   };
-    request.post({
+  request.post(
+    {
       headers: headers,
       url: fcmConstants.url,
       body: JSON.stringify(requestData),
-      method: 'POST'
-    }, function (error, httpResponse, body) {
-
-   console.log(httpResponse)
-
-    });
-
-
-}
-
+      method: "POST",
+    },
+    function (error, httpResponse, body) {
+      console.log(httpResponse);
+    }
+  );
+};
 
 /*
 var notify = (token, bill) => {
