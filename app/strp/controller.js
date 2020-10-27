@@ -5,7 +5,9 @@ const stripe_config = require("../config/stripe_config");
 var app = express();
 var mongoose = require("mongoose"),
   Users = mongoose.model("users"),
-  Bills = mongoose.model("bills");
+  Bills = mongoose.model("bills"),
+  Invoice = mongoose.model("invoice");
+
 const { ObjectId } = require("mongodb");
 var request = require("request");
 
@@ -21,8 +23,15 @@ var fcmConstants = {
 
 const _stripe = (req, res) => {
   const billId = ObjectId(req.body.billId);
-  const amountPaid = req.body.amountPaid;
+  const amountPaid = req.body.amount;
+  const userId = req.body.userId;
   // const fcmToken=req.body.fcmToken;
+  var invoiceBody = {
+    userId: userId,
+    billId: req.body.billId,
+    amount: amountPaid,
+  };
+  var invoice = new Invoice(invoiceBody);
 
   stripe.charges
     .create({
@@ -32,6 +41,7 @@ const _stripe = (req, res) => {
     })
     .then(function () {
       res.json({ message: "Payment Succeded" });
+
       Bills.aggregate([
         { $match: { _id: billId } },
         { $project: { result: { $subtract: ["$amount", amountPaid] } } },
@@ -46,12 +56,16 @@ const _stripe = (req, res) => {
             .status(200)
             .send({ amountRemaining: data[0].result, status: "unpaid" });
         }
-        Bills.update({ _id: billId }, [
-          { $set: { amount: data[0].result } },
-        ]).then((rest) => {
-          res.status(200).send(rest);
+       
+        Bills.update({ _id: billId }, [{ $set: { amount: data[0].result } }])
+          .then((rest) => {
+            res.status(200).send(rest);
+          });
+          invoice.save(function (err, task) {
+            if (err) res.send(err);
+            res.json(task);
+          })
         });
-      });
     })
     .catch(function () {
       res.json({
