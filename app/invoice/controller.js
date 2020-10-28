@@ -28,7 +28,15 @@ Invoice.aggregate([
            foreignField: "email",
            as: "user"
         }
-    }
+    },
+    { $lookup:
+        {
+           from: "bills",
+           localField: "billId",
+           foreignField: "_id",
+           as: "bill"
+        }
+    },
 ])
       .then((invoice) => res.status(200).send(invoice))
       .catch((err) => {
