@@ -35,8 +35,6 @@ const _stripe = (req, res) => {
   };
   var invoice = new Invoice(invoiceBody);
 
-
-
   stripe.charges
     .create({
       amount: req.body.amount,
