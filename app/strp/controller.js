@@ -26,7 +26,6 @@ const _stripe = (req, res) => {
   const amountPaid = req.body.amount;
   const userId = req.body.userId;
 
-  
   // const fcmToken=req.body.fcmToken;
   var invoiceBody = {
     userId: userId,
@@ -37,34 +36,76 @@ const _stripe = (req, res) => {
 
   stripe.charges
     .create({
-      amount: req.body.amount,
+      amount: req.body.amount*100,
       source: req.body.token,
       currency: "usd",
     })
-  .then(()=>{
-  Bills.aggregate([
-          { $match: { _id: billId } },
-          { $project: { result: { $subtract: ["$amount", amountPaid] } } },
-        ]).then((data)=>{
-        
-          if (data[0].result <= 0) {
-      res.json({ message: "Payment Succeded" ,amountRemaining: data[0].result, status: "paid" });
-}else{
-  res.json({message: "Payment Succeded",amountRemaining:data[0].result,status:"unpaid"})
-      // res.json({ message: "Payment Succeded" ,amountRemaining: data[0].result, status: "paid" });
-}
-          Bills.update({ _id: billId }, [{ $set: { amount: data[0].result } }])
-          .then((rest) => {
-            invoice.save(function (err, task) {
-                        if (err) res.send(err);
-                        res.json(task);
-                      })
-           console.log(rest)
-          }).catch(e=>{console.log(e)})
+    .then(() => {
+      Bills.aggregate([
+        { $match: { _id: billId } },
+        { $project: { result: { $subtract: ["$amount", amountPaid] } } },
+      ])
+        .then((data) => {
+          if (data[0].result >= 0) {
+            Bills.update({ _id: billId }, [
+              { $set: { amount: data[0].result } },
+            ])
+              .then((success) => {
+                if (success) {
+                  res.json({
+                    message: "Payment Succeded!",
+                    amountRemaining: data[0].result,
+                    status:  data[0].result > 0 ? 'unpaid' : 'paid',
+                  });
+                }
+                invoice.save().then((succ)=>{
+                  console.log(succ);
+                }).catch((err)=>{console.log(err)})
+                
+              })
+              .catch((err) => {
+                console.log(err);
+              });
+          } else {
+            res.json({
+              message: "Bill Payed!",
+              amountRemaining: 0,
+              status: "paid",
+            });
+          }
 
-        }).catch(a=>{console.log(a)})
-      }).catch(err=>{console.log(err)})
-
+          // if (data[0].result <= 0) {
+          //   res.json({
+          //     message: "Payment Succeded",
+          //     amountRemaining: data[0].result,
+          //     status: "paid",
+          //   });
+          // } else {
+          //   res.json({
+          //     message: "Payment Succeded",
+          //     amountRemaining: data[0].result,
+          //     status: "unpaid",
+          //   });
+          // }
+          // Bills.update({ _id: billId }, [{ $set: { amount: data[0].result } }])
+          //   .then((rest) => {
+          //     invoice.save(function (err, task) {
+          //       if (err) res.send(err);
+          //       res.json(task);
+          //     });
+          //     console.log(rest);
+          //   })
+          //   .catch((e) => {
+          //     console.log(e);
+          //   });
+        })
+        .catch((a) => {
+          console.log(a);
+        });
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 
   // stripe.charges
   //   .create({
@@ -89,7 +130,7 @@ const _stripe = (req, res) => {
   //           .status(200)
   //           .send({ amountRemaining: data[0].result, status: "unpaid" });
   //       }
-       
+
   //       Bills.update({ _id: billId }, [{ $set: { amount: data[0].result } }])
   //         .then((rest) => {
   //           res.status(200).send(rest);

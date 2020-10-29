@@ -4,6 +4,7 @@ var mongoose = require("mongoose"),
   Bills = mongoose.model("bills");
 
 bodyParser = require("body-parser");
+const { ObjectId } = require("mongodb");
 
 // var express = require("express");
 // var app = express();
@@ -25,7 +26,7 @@ const _bills = (req, res) => {
 };
 
 const _getBills = (req, res) => {
-  Bills.find()
+  Bills.find().sort({createdAt:-1})
     .then((users) => res.status(200).send(users))
     .catch((err) => {
       res.status(400).send({
@@ -36,7 +37,17 @@ const _getBills = (req, res) => {
     });
 };
 
+
+const _deleteBills = (req, res) => {
+  console.log(req.params.id)
+  Bills.deleteOne( { _id : req.params.id} ).then((success)=>{
+    
+    res.send({message:"deleted",id:req.params.id,isDelete:success})
+  }).catch((err)=>{console.log(err)})
+
+};
 module.exports = {
   _bills,
   _getBills,
+  _deleteBills
 };
