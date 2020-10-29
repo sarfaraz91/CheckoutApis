@@ -158,7 +158,11 @@ const _notification = (req, res) => {
   var isDivide = req.body.isDivide;
   var billDivided = 0;
   Bills.find({ _id: billId }).then((billData) => {
-    if (billData[0].amount == 0) return;
+    var foodItems=billData[0].foodItem;
+
+    if (billData[0].amount == 0) {
+      res.send({message:"bill already paid"})
+    };
     if (isDivide) {
       billDivided = billData[0].amount / userIds.length;
       Users.find({ email: { $in: userIds } })
@@ -167,7 +171,7 @@ const _notification = (req, res) => {
             notifyIds.push(items.token);
             // notify(items.token, billDivided,billData[0].amount);
           });
-          notify(notifyIds, billDivided, billData[0].amount);
+          notify(notifyIds, billDivided, billData[0].amount,foodItems);
           res.status(200).send();
         })
         .catch((err) => {
@@ -198,7 +202,8 @@ const _notification = (req, res) => {
   });
 };
 
-var notify = (notificationUsers, dividedBill, totalBill) => {
+var notify = (notificationUsers, dividedBill, totalBill,foodItems) => {
+  console.log(foodItems)
   var headers = {
     Authorization: "key=" + fcmConstants.fcmToken,
     "Content-Type": "application/json",
@@ -215,6 +220,7 @@ var notify = (notificationUsers, dividedBill, totalBill) => {
     data: {
       dividedBill: dividedBill,
       totalBill: totalBill,
+      foodItem:foodItems
     },
   };
   request.post(
@@ -225,7 +231,7 @@ var notify = (notificationUsers, dividedBill, totalBill) => {
       method: "POST",
     },
     function (error, httpResponse, body) {
-      console.log(httpResponse);
+      console.log(body);
     }
   );
 };
