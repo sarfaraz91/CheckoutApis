@@ -171,7 +171,7 @@ const _notification = (req, res) => {
             notifyIds.push(items.token);
             // notify(items.token, billDivided,billData[0].amount);
           });
-          notify(notifyIds, billDivided, billData[0].amount,foodItems);
+          notify(notifyIds, billDivided, billData[0].id,billData[0].amount,foodItems);
           res.status(200).send();
         })
         .catch((err) => {
@@ -202,7 +202,7 @@ const _notification = (req, res) => {
   });
 };
 
-var notify = (notificationUsers, dividedBill, totalBill,foodItems) => {
+var notify = (notificationUsers,billId, dividedBill, totalBill,foodItems) => {
   console.log(foodItems)
   var headers = {
     Authorization: "key=" + fcmConstants.fcmToken,
@@ -220,7 +220,8 @@ var notify = (notificationUsers, dividedBill, totalBill,foodItems) => {
     data: {
       dividedBill: dividedBill,
       totalBill: totalBill,
-      foodItem:foodItems
+      foodItem:foodItems,
+      bill:billId
     },
   };
   request.post(
