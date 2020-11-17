@@ -25,7 +25,6 @@ const _stripe = (req, res) => {
   const billId = ObjectId(req.body.billId);
   const amountPaid = req.body.amount;
   const userId = req.body.userId;
-
   // const fcmToken=req.body.fcmToken;
   var invoiceBody = {
     userId: userId,
@@ -159,6 +158,7 @@ const _notification = (req, res) => {
   var billDivided = 0;
   Bills.find({ _id: billId }).then((billData) => {
     var foodItems=billData[0].foodItem;
+    console.log('billData',billData[0]);
 
     if (billData[0].amount == 0) {
       res.send({message:"bill already paid"})
@@ -171,7 +171,7 @@ const _notification = (req, res) => {
             notifyIds.push(items.token);
             // notify(items.token, billDivided,billData[0].amount);
           });
-          notify(notifyIds, billDivided, billData[0].id,billData[0].amount,foodItems);
+          notify(notifyIds, billDivided, billData[0]._id,billData[0].amount,foodItems);
           res.status(200).send();
         })
         .catch((err) => {
@@ -202,8 +202,8 @@ const _notification = (req, res) => {
   });
 };
 
-var notify = (notificationUsers,billId, dividedBill, totalBill,foodItems) => {
-  console.log(foodItems)
+var notify = (notificationUsers, dividedBill,billId, totalBill,foodItems) => {
+  console.log('billId',billId);
   var headers = {
     Authorization: "key=" + fcmConstants.fcmToken,
     "Content-Type": "application/json",
